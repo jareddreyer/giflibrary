@@ -1,13 +1,15 @@
 <?php
 class imagePaginator {
 
-    public $json, $sourceXML, $directory, $linkLimit, $currentPage;
-    private $images, $pages, $count, $pgkey;
+    public $sourceXML, $directory, $linkLimit, $currentPage;
+    private $images, $pages, $count, $pgkey, $private, $jsonArray;
     
-    public function __construct($json, $directory, $sourceXML='', $limit = 12, $linkLimit = 10)
+    public function __construct($directory, $limit = 12, $linkLimit = 10)
     {
-        $this->json = $json; //set json
-        $this->sourceXML = $sourceXML; //set sourceXML from curl
+        //set the json
+        $this->json = json_decode($_SESSION['data'], true);
+        $this->jsonArray = array_column( $this->json, 'url');
+        
         $this->directory = $directory; //set directory for reading and saving all images
         $this->limit = $limit; //set limit of how many images to paginate
         $this->linkLimit = $linkLimit; // set limit of how many links per pagination
@@ -36,33 +38,42 @@ class imagePaginator {
      */
     public function saveImages ()
     {
-        foreach ($this->json as $item) 
+        foreach ($this->jsonArray as $item) 
         {
+            $name = basename($item);
+
             //first check file exists
-            if (file_exists($this->directory . $item))
+            if (file_exists($this->directory ."\\". $name))
             {
-                
-                $stat = stat($this->directory . $item); //get modified date  
-                
+                $stat = filemtime($this->directory ."\\". $name); //get modified date  
+                $this->sourceXML = $this->curlRequest($item, $connectionType = 'check');
                 //then check its modified date is > or = to current file
-                if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($stat))
+                
+                if ($this->sourceXML['header']['filetime'] <= $stat)
                 {
-                    echo "<p>file is up to date, no saving was done...</p>";
-                } else {
-                    $name = basename($item);
-                    file_put_contents($this->directory . $name, file_get_contents($item));
-                    echo "<p>saving is complete...</p>";
-                }
-            
-            } else {
+                    echo "<p>File: $item is up to date, no saving was done...</p>";
                     
+                } else {
+                    
+                    //file has been updated, better redownload it!
+                    $this->sourceXML = $this->curlRequest($item, $connectionType = 'download');
+                    file_put_contents($this->directory ."\\" . $name, file_get_contents($item));
+                    echo "<p>$item has been saved...</p>";
+                }
+                
+                
+            } else {
                 //we don't have that image, so lets download it!
-                $this->sourceXML = $this->curlRequest($item);
-                $name = basename($item);
-                file_put_contents($this->directory . $name, file_get_contents($item));
-                echo "<p>saving is complete...</p>";
+                $this->sourceXML = $this->curlRequest($item, $connectionType = 'download');
+                
+                file_put_contents($this->directory ."\\" . $name, file_get_contents($item));
+                echo "<p>$item has been saved...</p>";
+                
+                //return $this->sourceXML;
             }
         }
+        
+        return;
     }
     
     
@@ -148,33 +159,47 @@ class imagePaginator {
      * @param
      * 
      */
-    public function getRequest($url, $xmlData = '', $options = array())
+    public function curlRequest($url, $connectionType='')
     {
         
-        is_null($options) ? $options = array(   CURLOPT_RETURNTRANSFER => true, // return web page
-                            CURLOPT_HEADER => false, // don't return headers
-                            CURLOPT_FOLLOWLOCATION => true, // follow redirects
+        ($connectionType == 'check') ? $options = array(   
+                            CURLOPT_RETURNTRANSFER => 1, // return web page
+                            CURLOPT_HEADER => TRUE, // don't return headers
+                            CURLOPT_FILETIME => TRUE, // don't return headers
+                            CURLOPT_NOBODY => TRUE, //doing a quick check so don't need full download
+                            CURLOPT_FOLLOWLOCATION => TRUE, // follow redirects
                             CURLOPT_ENCODING => "", // handle all encodings
-                            CURLOPT_USERAGENT => "gif_downloader", // who am i
-                            CURLOPT_AUTOREFERER => true, // set referer on redirect
+                            CURLOPT_USERAGENT => "gif_checker", // who am i
+                            CURLOPT_AUTOREFERER => TRUE, // set referer on redirect
                             CURLOPT_CONNECTTIMEOUT => 120, // timeout on connect
                             CURLOPT_TIMEOUT => 120, // timeout on response
-                            CURLOPT_MAXREDIRS => 10, // stop after 10 redirects
-                            CURLOPT_POSTFIELDS => $xmlData, // XML feed data
-                        ) : $options;
-
+                            CURLOPT_MAXREDIRS => 10, // stop after 10 redirects                            
+                        ) : 
+                        
+                        $options = array(   
+                            CURLOPT_RETURNTRANSFER => 1, // return web page
+                            CURLOPT_HEADER => 0, // don't return headers
+                            CURLOPT_FILETIME => 0, // don't return headers
+                            CURLOPT_FOLLOWLOCATION => TRUE, // follow redirects
+                            CURLOPT_ENCODING => "", // handle all encodings
+                            CURLOPT_USERAGENT => "gif_downloader", // who am i
+                            CURLOPT_AUTOREFERER => TRUE, // set referer on redirect
+                            CURLOPT_CONNECTTIMEOUT => 120, // timeout on connect
+                            CURLOPT_TIMEOUT => 120, // timeout on response
+                            CURLOPT_MAXREDIRS => 10, // stop after 10 redirects                            
+                        );
         $ch = curl_init($url);
         curl_setopt_array($ch, $options);
-        $content = curl_exec($ch);
-        $err = curl_errno($ch);
-        $errmsg = curl_error($ch);
-        $header = curl_getinfo($ch);
+        
+        $headers['errno']   = curl_errno($ch);
+        $headers['errmsg']  = curl_error($ch);
+        $headers['content'] = curl_exec($ch);
+        $headers['header']  = curl_getinfo($ch);
+        
         curl_close($ch);
-
-        $header['errno'] = $err;
-        $header['errmsg'] = $errmsg;
-        $header['content'] = $content;
-        return $header;
+        
+        return $headers;
+    
     }
 
 }
