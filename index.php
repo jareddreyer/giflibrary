@@ -119,7 +119,7 @@
                 include "gifs.class.php";
                 include_once "gifs-config.php";
                 
-                $gifs = new imagePaginator($json, $directory);
+                $gifs = new imagePaginator($directory);
                 echo $gifs->buildPagination();
                 
                 echo $gifs->buildResult();
