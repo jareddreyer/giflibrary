@@ -29,6 +29,13 @@ class imagePaginator {
             $this->pgkey = 1;
         }
         
+        //check if download
+        if(isset($_GET['download']) && is_numeric($_GET['download']) && !empty($_GET['download']))
+        {
+            $this->saveImages();
+            exit;
+        }
+        
     }
 
     /*
@@ -88,12 +95,12 @@ class imagePaginator {
        
         foreach($this->pages[$this->pgkey] as $key => $file)
         {
-            $results .= '<div class="col-lg-3 col-md-2 col-sm-3 col-xs-4 thumb"> <a class="thumbnail" href="#">'."\n\r";  
+            $results .= '<div class="col-lg-3 col-md-2 col-sm-3 col-xs-4 thumb"> <a class="thumbnail">'."\n\r";  
             $results .= '<img class="freezeframe img-responsive" src="../gifs/images/'. $file . '" alt="">'."\n\r";
             $results .= '<div class="input-group js-zeroclipboard-container">
                             <h3>URL:</h3>
-                            <input type="text" class="input-mini input-monospace js-copytextarea" value="'.$this->json[$key] .'" readonly="readonly">
-                            <span class="url">'.$this->json[$key] .'</span>
+                            <input type="text" class="input-mini input-monospace js-copytextarea" value="'.$this->jsonArray[$key] .'" readonly="readonly">
+                            <span class="url">'.$this->jsonArray[$key] .'</span>
                          </div>';
             $results .= '</a></div>'."\n\r";
         }
