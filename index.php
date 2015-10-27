@@ -1,3 +1,8 @@
+<?php
+
+session_start();
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,10 +46,9 @@
     <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/freezeframe.min.js"></script>
-        
+    
     <script>
-            $("document").ready(function(){
-                
+            $(function() {
                 $(".container").on('click', '.pagination li a', function() { 
 
                 var page_id = $(this).data('id');
@@ -73,28 +77,30 @@
                   {
                     $('span.url').each(function(e){
                       $(this).addClass('Select C'+e);
-                      $(this).after( ' <span class="input-group-button"><button class="btn btn-sm SelectBtn C'+e+'"><span class="octicon octicon-clippy"></span></button></span>');
+                      $(this).after( ' <span class="input-group-button"><button data-toggle="tooltip" data-placement="left" title="copy to clipboard" class="btn btn-sm SelectBtn C'+e+'"><span class="octicon octicon-clippy"></span></button></span>');
                      });
                      
                       $('button').each(function(e)
                       {
-                          var copyEmailBtn = document.querySelector('.SelectBtn.C'+e);  
+                          $('[data-toggle="tooltip"]').tooltip();
+                          var copyEmailBtn = document.querySelector('.SelectBtn.C'+e);
+                          console.log('dont know why this is null')
                           copyEmailBtn.addEventListener('click', function(event)
                           {  
-                      
+                              $(this).attr('data-original-title', "Copied!").tooltip('show');
                               // Select the email link anchor text  
-                              var emailLink = document.querySelector('.Select.C'+e);  
-                              var range = document.createRange();  
+                              var emailLink = document.querySelector('.Select.C'+e);
+                              var range = document.createRange();
                               range.selectNode(emailLink);  
-                              window.getSelection().addRange(range);  
+                              window.getSelection().addRange(range);
                             
                               try {  
                                 // Now that we've selected the anchor text, execute the copy command  
-                                var successful = document.execCommand('copy');  
-                                var msg = successful ? '...copied ' : '...unsuccessful'; 
+                                var successful = document.execCommand('copy');
+                                var msg = successful ? '...copied ' : '...unsuccessful';
                                 msg2 = emailLink.innerHTML;
                                 //console.log(msg2);
-                                alert(msg+msg2);
+                                //alert(msg+msg2);
                                 //console.log(emailLink.innerHTML);
                                 //console.log(window.clipboardData.getData('Text'));
                                 //$('Select C'+e).after(msg).fadeOut('slow');
@@ -113,6 +119,27 @@
 
 <body>
 
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Gif Library</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="index.php">Home</a></li>
+            <li><a href="localstorage.php">Add Localstorage</a></li>
+            <li><a href="?download=1">Download Localstorage</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
     <!-- Page Content -->
     <div class="container text-center">
          <?php 
@@ -120,16 +147,16 @@
                 include_once "gifs-config.php";
                 
                 $gifs = new imagePaginator($directory);
-                echo $gifs->buildPagination();
-                
-                echo $gifs->buildResult();
-        
-                echo $gifs->buildPagination();
-                echo $gifs->currentPage;
+                //echo $gifs->saveImages();
+                 echo $gifs->buildPagination();
+//                 
+                 echo $gifs->buildResult();
+//         
+                 echo $gifs->buildPagination();
+                 echo $gifs->currentPage;
         
         ?>
         <hr>
-
         <!-- Footer -->
         <footer>
             <div class="row">
