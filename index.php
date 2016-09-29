@@ -2,6 +2,7 @@
 
 session_start();
 
+if(!isset($_SESSION['data'])) header("Location: localstorage.php"); 
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +15,7 @@ session_start();
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Thumbnail Gallery - Start Bootstrap Template</title>
+    <title>Thumbnail Gallery</title>
 
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/thumbnail-gallery.css" rel="stylesheet">
@@ -61,31 +62,37 @@ session_start();
                         success: function(result)
                         {
                             
-                            $('.container').html(result).fadeIn(700, function() 
+                            $('#results').html(result).fadeIn(700, function() 
                             {
                             });
                             freezeframe.run();
                             copyBtn();
+                            
                         }
                     });
                 });
-                
+            });  
              
-                  copyBtn();
                   
-                  function copyBtn ()
+                  $(document).ready(function()
                   {
-                    $('span.url').each(function(e){
+                    copyBtn();
+                  }); //end document ready
+                  
+                  function copyBtn()
+                  {
+                   
+                   $('span.url').each(function(e){
                       $(this).addClass('Select C'+e);
                       $(this).after( ' <span class="input-group-button"><button data-toggle="tooltip" data-placement="left" title="copy to clipboard" class="btn btn-sm SelectBtn C'+e+'"><span class="octicon octicon-clippy"></span></button></span>');
                      });
                      
                       $('button').each(function(e)
                       {
-                          $('[data-toggle="tooltip"]').tooltip();
-                          var copyEmailBtn = document.querySelector('.SelectBtn.C'+e);
-                          console.log('dont know why this is null')
-                          copyEmailBtn.addEventListener('click', function(event)
+                          $('[data-toggle="tooltip"]').tooltip();                          
+                          var copyEmailBtn = $('.SelectBtn.C'+e);
+                          
+                          copyEmailBtn.on('click', function(event)
                           {  
                               $(this).attr('data-original-title', "Copied!").tooltip('show');
                               // Select the email link anchor text  
@@ -109,11 +116,10 @@ session_start();
                               }
                             
                             window.getSelection().removeAllRanges();  
-                        }); 
-                });
-              };    
+                           }); 
+                       });   
+                  }
                   
-    }); //end document ready
     </script>
 </head>
 
@@ -133,7 +139,7 @@ session_start();
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="index.php">Home</a></li>
-            <li><a href="localstorage.php">Add Localstorage</a></li>
+            <li><a href="localstorage.php">Setup Localstorage</a></li>
             <li><a href="?download=1">Download Localstorage</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -141,7 +147,7 @@ session_start();
     </nav>
 
     <!-- Page Content -->
-    <div class="container text-center">
+    <div id="results" class="container text-center">
          <?php 
                 include "gifs.class.php";
                 include_once "gifs-config.php";
@@ -156,7 +162,9 @@ session_start();
                  echo $gifs->currentPage;
         
         ?>
-        <hr>
+    </div>
+    <div class="container text-center">
+     <hr>
         <!-- Footer -->
         <footer>
             <div class="row">
@@ -165,11 +173,7 @@ session_start();
                 </div>
             </div>
         </footer>
-
     </div>
-    <!-- /.container -->
-
-    <!-- jQuery -->
 
 </body>
 
