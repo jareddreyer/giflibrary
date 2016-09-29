@@ -68,7 +68,6 @@ class imagePaginator {
                     echo "<p>$item has been saved...</p>";
                 }
                 
-                
             } else {
                 //we don't have that image, so lets download it!
                 $this->sourceXML = $this->curlRequest($item, $connectionType = 'download');
@@ -87,20 +86,24 @@ class imagePaginator {
     /**
      *  buildResult - builds html of all images
      * 
-     * 
+     *  @return array
      */
     public function buildResult()
     {
         $results = '<div id="content" class="row text-center">';
-       
+        
         foreach($this->pages[$this->pgkey] as $key => $file)
         {
+            
+            $basename = pathinfo($file, PATHINFO_FILENAME); //remove file type from file name
+            $item =  array_search($basename, array_map('basename', $this->jsonArray)); //search jsonArray array via local filename and return key index
+            
             $results .= '<div class="col-lg-3 col-md-2 col-sm-3 col-xs-4 thumb"> <a class="thumbnail">'."\n\r";  
             $results .= '<img class="freezeframe img-responsive" src="../gifs/images/'. $file . '" alt="">'."\n\r";
             $results .= '<div class="input-group js-zeroclipboard-container">
                             <h3>URL:</h3>
-                            <input type="text" class="input-mini input-monospace js-copytextarea" value="'.$this->jsonArray[$key] .'" readonly="readonly">
-                            <span class="url">'.$this->jsonArray[$key] .'</span>
+                            <input type="text" class="input-mini input-monospace js-copytextarea" value="'. $this->jsonArray[$item] .'" readonly="readonly">
+                            <span class="url">'.$this->jsonArray[$item] .'</span>
                          </div>';
             $results .= '</a></div>'."\n\r";
         }
