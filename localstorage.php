@@ -34,7 +34,7 @@ if ( isset($_POST['data']))
 				var id = $(url).val();
 				
 				if (id == "") {
-					$('.order').html('<li> You did not enter a URL, nothing was saved. </li>')
+					$('.order').html('<li><div class="alert alert-warning" role="alert">You did not enter a URL, nothing was saved. </div></li>')
 					return false
 				}
 
@@ -48,19 +48,22 @@ if ( isset($_POST['data']))
                     }).length;
                     
                     if (alreadyExists > 0) {
-                        $(".order").append("<li>" + id + " ... already exists in your list.</li>");
+                        $(".order").append('<li><div class="alert alert-warning" role="alert">' + id + ' already exists in your list.</div></li>');
                       return false;
                     } else {
                         // APPEND
-                        $('.order').append('<li>' + $(url).val() + '... has been added.<button id="' + id + '" name="remove" class="delete" >Delete</button></li>');
+                        $('.order').append('<li><div class="alert alert-success" role="alert">' + $(url).val() + ' has been added.<button id="' + id + '" name="remove" class="delete" >Delete</button></div></li>');
 
                         result.push({
                             url : id
                         });
                     }
-
+                // Clear text box
+                $(url).val('');
+                
 				// SAVE
 				localStorage.setItem("urls", JSON.stringify(result));
+				 $.post('localstorage.php', {data} );
 			});
             
             var urls = JSON.parse(localStorage.getItem("urls"));
@@ -69,18 +72,20 @@ if ( isset($_POST['data']))
                 for (var i = 0; i < urls.length; i++)
                 {
                     var item = urls[i];
-                    $('.order').append('<li>' + item.url + '... has been added.<button id="' + item.url + '" name="remove" class="delete" >Delete</button></li>');
+                    $('.order').append('<li>' + item.url + '&nbsp; <button id="' + item.url + '" name="remove" class="delete" >Delete</button></li>');
                 }
-                
-                
-                
                 
                 var data = localStorage.getItem('urls');
                 
                 $.post('localstorage.php', {data} );
                 
             }
-
+            
+            $('.save').click(function()
+            {
+               
+            });
+            
 			//retrieve
 			$('.storage').click(function()
 			{
@@ -108,38 +113,85 @@ if ( isset($_POST['data']))
 
 				// SAVE
 				localStorage.setItem("urls", JSON.stringify(urls));
-				$(e.target).parent().html('<li>...item has been deleted</li>');
+				$(e.target).parent().html('<li><div class="alert alert-success" role="alert">Item has now been removed.</div></li>');
 
 			});
 
 		});
         </script>
-    </head>
 
-    <body>
-        <?php 
-        $json = json_decode($_SESSION['data'], true);
-        $array = array_column($json, 'url');
-        
-        print_r($array);
-        //var_dump($_SESSION['data']);
-        //
-        //echo $array[0]['url'];
-        //print_r($array);
-        foreach ($array as $key => $jsons)
-        { // This will search in the 2 jsons
-        
-            foreach($jsons as $key => $value) 
-            {
-                //echo "$key => $value";
-                 //echo $value . "<br>"; // This will show jsut the value f each key like "var1" will print 9
-                 //$newArray = array($value);
-                 
-                 
-            }
-        }
-        
-?>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Thumbnail Gallery - Start Bootstrap Template</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/thumbnail-gallery.css" rel="stylesheet">
+    <link href="css/overrides.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/octicons.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <style>
+    .form-control, input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="tel"], input[type="url"], select, textarea {
+        background-color: #fff;
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        outline: none;
+        width: 180px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
+    }
+    .url { height: 1px; width: 1px; font-size: 0.1% }
+    .input-group h3
+    {
+        margin-bottom: 5px;
+        font-size: 11px;
+        font-weight: normal;
+        color: #767676;
+        display: inline
+    }
+    a:hover { text-decoration: none }
+    </style>
+    <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/freezeframe.min.js"></script>        
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        <a class="navbar-brand" href="#">Gif library</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="index.php">Home</a></li>
+            <li class="active"><a href="localstorage.php">Setup Localstorage</a></li>
+            <li><a href="index.php?download=1">Download storage</a></li>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+    <!-- Page Content -->
+    <div class="container text-center">
+                <?php 
+                    if(!isset($_SESSION['data'])) 
+                    {
+                        echo "<p>Session is now restored</p>";
+                    } else {
+                        $json = json_decode($_SESSION['data'], true); 
+                        $array = array_column($json, 'url'); 
+                    }
+                ?>
+
         <input type="text" name="url" id="url">
         <button class="add">
             Add New Item
@@ -150,12 +202,32 @@ if ( isset($_POST['data']))
         <button class="storage">
             Get storage
         </button>
-
+        
+        <hr>
+        <div class="container text-left">
+        <h1>GIFS currently in storage</h1>
         <div>
             <ul class="order">
 
             </ul>
         </div>
-    </body>
+        </div>
+        <hr>
+        
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; Jared Dreyer 2015</p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <!-- /.container -->
+
+    <!-- jQuery -->
+
+</body>
 
 </html>
