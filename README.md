@@ -1,5 +1,5 @@
 # giflibrary
-Builds a thumbnail gallary for gifs
+Builds a thumbnail gallery for gifs
 
 # Dependincies 
  - requires PHP 5+
