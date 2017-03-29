@@ -50,9 +50,9 @@ class imagePaginator {
             $name = basename($item);
 
             //first check file exists
-            if (file_exists($this->directory ."\\". $name))
+            if (file_exists($this->directory . $name))
             {
-                $stat = filemtime($this->directory ."\\". $name); //get modified date  
+                $stat = filemtime($this->directory . $name); //get modified date  
                 $this->sourceXML = $this->curlRequest($item, $connectionType = 'check');
                 //then check its modified date is > or = to current file
                 
@@ -64,7 +64,7 @@ class imagePaginator {
                     
                     //file has been updated, better redownload it!
                     $this->sourceXML = $this->curlRequest($item, $connectionType = 'download');
-                    file_put_contents($this->directory ."\\" . $name, file_get_contents($item));
+                    file_put_contents($this->directory . $name, file_get_contents($item));
                     echo "<p>$item has been saved...</p>";
                 }
                 
@@ -72,7 +72,7 @@ class imagePaginator {
                 //we don't have that image, so lets download it!
                 $this->sourceXML = $this->curlRequest($item, $connectionType = 'download');
                 
-                file_put_contents($this->directory ."\\" . $name, file_get_contents($item));
+                file_put_contents($this->directory . $name, file_get_contents($item));
                 echo "<p>$item has been saved...</p>";
                 
                 //return $this->sourceXML;
