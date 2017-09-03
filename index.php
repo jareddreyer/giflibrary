@@ -106,11 +106,6 @@ if(!isset($_SESSION['data'])) header("Location: localstorage.php");
                                 var successful = document.execCommand('copy');
                                 var msg = successful ? '...copied ' : '...unsuccessful';
                                 msg2 = emailLink.innerHTML;
-                                //console.log(msg2);
-                                //alert(msg+msg2);
-                                //console.log(emailLink.innerHTML);
-                                //console.log(window.clipboardData.getData('Text'));
-                                //$('Select C'+e).after(msg).fadeOut('slow');
                               } catch(err) { 
                                  $(this).prev('code').css('background','#ff5555');
                               }
@@ -153,11 +148,9 @@ if(!isset($_SESSION['data'])) header("Location: localstorage.php");
                 include_once "gifs-config.php";
                 
                 $gifs = new imagePaginator($directory);
-                //echo $gifs->saveImages();
+                
                  echo $gifs->buildPagination();
-//                 
                  echo $gifs->buildResult();
-//         
                  echo $gifs->buildPagination();
                  echo $gifs->currentPage;
         
